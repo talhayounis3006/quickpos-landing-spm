@@ -361,5 +361,126 @@ unset($_SESSION['form_errors'], $_SESSION['form_data']);
     </div>
 </section>
 
+<!-- ================================================================
+     PRICING SECTION
+     ================================================================ -->
+<section class="pricing" id="pricing">
+    <div class="section-label">Pricing Plans</div>
+    <h2>Simple, transparent pricing</h2>
+    <p class="section-sub">No hidden fees. No long-term contracts. Cancel anytime.</p>
+
+    <div class="pricing-grid">
+        <!-- Basic -->
+        <div class="price-card">
+            <div class="price-plan">Basic</div>
+            <div class="price-amount">$29<span>/mo</span></div>
+            <div class="price-desc">Perfect for small shops</div>
+            <hr class="price-divider">
+            <ul class="price-features">
+                <li>1 Terminal</li>
+                <li>Basic Sales Reports</li>
+                <li>Email Support</li>
+                <li>Up to 500 products</li>
+            </ul>
+            <a href="#" class="btn-plan">Get Basic</a>
+        </div>
+
+        <!-- Pro (Popular) -->
+        <div class="price-card popular">
+            <span class="popular-badge">⭐ Most Popular</span>
+            <div class="price-plan">Pro</div>
+            <div class="price-amount">$79<span>/mo</span></div>
+            <div class="price-desc">Best for growing businesses</div>
+            <hr class="price-divider">
+            <ul class="price-features">
+                <li>5 Terminals</li>
+                <li>Advanced Analytics</li>
+                <li>Priority Support</li>
+                <li>Inventory Alerts</li>
+                <li>Unlimited products</li>
+            </ul>
+            <a href="#" class="btn-plan">Get Pro</a>
+        </div>
+
+        <!-- Enterprise -->
+        <div class="price-card">
+            <div class="price-plan">Enterprise</div>
+            <div class="price-amount">$199<span>/mo</span></div>
+            <div class="price-desc">For large-scale operations</div>
+            <hr class="price-divider">
+            <ul class="price-features">
+                <li>Unlimited Terminals</li>
+                <li>Custom Reports</li>
+                <li>24/7 Phone Support</li>
+                <li>API Access</li>
+                <li>Dedicated Manager</li>
+            </ul>
+            <a href="#" class="btn-plan">Contact Sales</a>
+        </div>
+    </div>
+</section>
+<!-- ================================================================
+     CONTACT FORM SECTION
+     ================================================================ -->
+<section class="contact" id="contact">
+    <div class="section-label">Get In Touch</div>
+    <h2>We'd love to hear from you</h2>
+    <p class="section-sub">Our team typically responds within 24 hours.</p>
+
+    <form class="contact-form" action="contact.php" method="POST" novalidate>
+
+        <!-- Name -->
+        <div class="form-group">
+            <label for="name">Your Name</label>
+            <input
+                type="text"
+                id="name"
+                name="name"
+                placeholder="John Doe"
+                value="<?= htmlspecialchars($old['name'] ?? '') ?>"
+                class="<?= isset($errors['name']) ? 'error' : '' ?>"
+            >
+            <?php if (isset($errors['name'])): ?>
+                <span class="error-msg">⚠ <?= htmlspecialchars($errors['name']) ?></span>
+            <?php endif; ?>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+            <label for="email">Email Address</label>
+            <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="john@example.com"
+                value="<?= htmlspecialchars($old['email'] ?? '') ?>"
+                class="<?= isset($errors['email']) ? 'error' : '' ?>"
+            >
+            <?php if (isset($errors['email'])): ?>
+                <span class="error-msg">⚠ <?= htmlspecialchars($errors['email']) ?></span>
+            <?php endif; ?>
+        </div>
+
+        <!-- Message -->
+        <div class="form-group">
+            <label for="message">Message</label>
+            <textarea
+                id="message"
+                name="message"
+                rows="5"
+                placeholder="How can we help you?"
+                class="<?= isset($errors['message']) ? 'error' : '' ?>"
+            ><?= htmlspecialchars($old['message'] ?? '') ?></textarea>
+            <?php if (isset($errors['message'])): ?>
+                <span class="error-msg">⚠ <?= htmlspecialchars($errors['message']) ?></span>
+            <?php endif; ?>
+        </div>
+
+        <button type="submit" class="btn-submit">Send Message →</button>
+
+    </form>
+</section>
+
+
 </body>
 </html>
