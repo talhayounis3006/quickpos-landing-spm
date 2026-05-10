@@ -361,5 +361,65 @@ unset($_SESSION['form_errors'], $_SESSION['form_data']);
     </div>
 </section>
 
+<!-- ================================================================
+     PRICING SECTION
+     ================================================================ -->
+<section class="pricing" id="pricing">
+    <div class="section-label">Pricing Plans</div>
+    <h2>Simple, transparent pricing</h2>
+    <p class="section-sub">No hidden fees. No long-term contracts. Cancel anytime.</p>
+
+    <div class="pricing-grid">
+        <!-- Basic -->
+        <div class="price-card">
+            <div class="price-plan">Basic</div>
+            <div class="price-amount">$29<span>/mo</span></div>
+            <div class="price-desc">Perfect for small shops</div>
+            <hr class="price-divider">
+            <ul class="price-features">
+                <li>1 Terminal</li>
+                <li>Basic Sales Reports</li>
+                <li>Email Support</li>
+                <li>Up to 500 products</li>
+            </ul>
+            <a href="#" class="btn-plan">Get Basic</a>
+        </div>
+
+        <!-- Pro (Popular) -->
+        <div class="price-card popular">
+            <span class="popular-badge">⭐ Most Popular</span>
+            <div class="price-plan">Pro</div>
+            <div class="price-amount">$79<span>/mo</span></div>
+            <div class="price-desc">Best for growing businesses</div>
+            <hr class="price-divider">
+            <ul class="price-features">
+                <li>5 Terminals</li>
+                <li>Advanced Analytics</li>
+                <li>Priority Support</li>
+                <li>Inventory Alerts</li>
+                <li>Unlimited products</li>
+            </ul>
+            <a href="#" class="btn-plan">Get Pro</a>
+        </div>
+
+        <!-- Enterprise -->
+        <div class="price-card">
+            <div class="price-plan">Enterprise</div>
+            <div class="price-amount">$199<span>/mo</span></div>
+            <div class="price-desc">For large-scale operations</div>
+            <hr class="price-divider">
+            <ul class="price-features">
+                <li>Unlimited Terminals</li>
+                <li>Custom Reports</li>
+                <li>24/7 Phone Support</li>
+                <li>API Access</li>
+                <li>Dedicated Manager</li>
+            </ul>
+            <a href="#" class="btn-plan">Contact Sales</a>
+        </div>
+    </div>
+</section>
+
+
 </body>
 </html>
