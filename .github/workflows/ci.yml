@@ -33,11 +33,14 @@ jobs:
 
       - name: "Check all commit messages contain [SPMPR-xxx]"
         run: |
-          echo "Fetching commits in this push..."
-          COMMITS=$(git log --format="%s" origin/main..HEAD 2>/dev/null || git log --format="%s" -10)
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            COMMITS=$(git log --format="%s" ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} 2>/dev/null)
+          else
+            COMMITS=$(git log --format="%s" origin/main..HEAD 2>/dev/null)
+          fi
 
           if [ -z "$COMMITS" ]; then
-            echo "No new commits found. Skipping check."
+            echo "No new commits found. Skipping."
             exit 0
           fi
 
@@ -51,21 +54,18 @@ jobs:
               if echo "$msg" | grep -qE '^\[SPMPR-[0-9]+\]'; then
                 echo "PASS: $msg"
               else
-                echo "FAIL: Missing Jira ID in commit: '$msg'"
-                echo "   Required format: [SPMPR-123] Your message here"
+                echo "FAIL: Missing Jira ID in: '$msg'"
                 FAILED=1
               fi
             fi
           done <<< "$COMMITS"
 
           if [ $FAILED -eq 1 ]; then
-            echo ""
-            echo "Pipeline failed: One or more commits are missing a Jira ticket ID."
+            echo "Pipeline failed: commits missing Jira ticket ID."
             exit 1
           fi
 
-          echo ""
-          echo "All commit messages are valid!"
+          echo "All commit messages valid!"
 
   # ────────────────────────────────────────────────────────────────
   # STAGE 3 — CODE QUALITY  (runs in PARALLEL with automated-tests)
