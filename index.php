@@ -493,7 +493,7 @@ unset($_SESSION['form_errors'], $_SESSION['form_data']);
         <a href="#">📘 Facebook</a>
         <a href="#">📸 Instagram</a>
     </div>
-    <p class="footer-copy">&copy; 2025 QuickPOS. All rights reserved.</p>
+    <p class="footer-copy">&copy; 2026 QuickPOS. All rights reserved.</p>
 </footer>
 
 </body>
