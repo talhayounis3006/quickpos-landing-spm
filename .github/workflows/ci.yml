@@ -1,0 +1,166 @@
+name: QuickPOS CI Pipeline
+
+# ──────────────────────────────────────────────────────────────────
+# STAGE 1 — TRIGGERS
+# Runs on every push to feature/ and bugfix/ branches,
+# and on every Pull Request targeting main.
+# ──────────────────────────────────────────────────────────────────
+on:
+  push:
+    branches:
+      - 'feature/**'
+      - 'bugfix/**'
+  pull_request:
+    branches:
+      - main
+
+jobs:
+
+  # ────────────────────────────────────────────────────────────────
+  # STAGE 10 — JIRA COMMIT VALIDATION
+  # Every commit message MUST start with [SPMPR-xxx]
+  # If any commit is missing the Jira ID, the pipeline FAILS.
+  # ────────────────────────────────────────────────────────────────
+  validate-commits:
+    name: "Stage 10 — Jira Commit ID Validation"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: "Stage 1 — Checkout code"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: "Check all commit messages contain [SPMPR-xxx]"
+        run: |
+          echo "Fetching commits in this push..."
+          COMMITS=$(git log --format="%s" origin/main..HEAD 2>/dev/null || git log --format="%s" -10)
+
+          if [ -z "$COMMITS" ]; then
+            echo "No new commits found. Skipping check."
+            exit 0
+          fi
+
+          echo "Commits to validate:"
+          echo "$COMMITS"
+          echo "---"
+
+          FAILED=0
+          while IFS= read -r msg; do
+            if [ -n "$msg" ]; then
+              if echo "$msg" | grep -qE '^\[SPMPR-[0-9]+\]'; then
+                echo "PASS: $msg"
+              else
+                echo "FAIL: Missing Jira ID in commit: '$msg'"
+                echo "   Required format: [SPMPR-123] Your message here"
+                FAILED=1
+              fi
+            fi
+          done <<< "$COMMITS"
+
+          if [ $FAILED -eq 1 ]; then
+            echo ""
+            echo "Pipeline failed: One or more commits are missing a Jira ticket ID."
+            exit 1
+          fi
+
+          echo ""
+          echo "All commit messages are valid!"
+
+  # ────────────────────────────────────────────────────────────────
+  # STAGE 3 — CODE QUALITY  (runs in PARALLEL with automated-tests)
+  # Also covers Stage 2 (PHP setup), Stage 5 (syntax check)
+  # ────────────────────────────────────────────────────────────────
+  code-quality:
+    name: "Stage 3 — Code Quality (PHPStan + Syntax)"
+    runs-on: ubuntu-latest
+    needs: validate-commits          # only runs if commit validation passes
+
+    steps:
+      - name: "Stage 1 — Checkout code"
+        uses: actions/checkout@v4
+
+      - name: "Stage 2 — Setup PHP 8.3"
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      - name: "Install Composer dependencies"
+        run: composer install --no-progress --prefer-dist --no-interaction
+
+      - name: "Stage 5 — PHP Syntax Check (all .php files)"
+        run: |
+          echo "Running syntax check on all PHP files..."
+          find . -name "*.php" \
+            -not -path "./vendor/*" \
+            -print \
+            -exec php -l {} \;
+          echo "Syntax check complete — no errors found!"
+
+      - name: "Stage 3 — PHPStan Static Analysis"
+        run: |
+          echo "Running PHPStan analysis..."
+          ./vendor/bin/phpstan analyse --no-progress
+          echo "PHPStan analysis complete!"
+
+  # ────────────────────────────────────────────────────────────────
+  # STAGE 4 — AUTOMATED TESTS  (runs in PARALLEL with code-quality)
+  # Also covers Stage 6 (artifact upload)
+  # ────────────────────────────────────────────────────────────────
+  automated-tests:
+    name: "Stage 4 — Automated Tests (PHPUnit)"
+    runs-on: ubuntu-latest
+    needs: validate-commits          # only runs if commit validation passes
+
+    steps:
+      - name: "Stage 1 — Checkout code"
+        uses: actions/checkout@v4
+
+      - name: "Stage 2 — Setup PHP 8.3"
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      - name: "Install Composer dependencies"
+        run: composer install --no-progress --prefer-dist --no-interaction
+
+      - name: "Stage 4 — Run PHPUnit test suite"
+        run: |
+          echo "Running PHPUnit tests..."
+          ./vendor/bin/phpunit --testdox --log-junit test-results.xml
+          echo "All tests passed!"
+
+      - name: "Stage 6 — Upload test results as artifact"
+        uses: actions/upload-artifact@v4
+        if: always()                 # upload even if tests fail (for debugging)
+        with:
+          name: phpunit-test-results
+          path: test-results.xml
+          retention-days: 7
+
+  # ────────────────────────────────────────────────────────────────
+  # FINAL GATE — Pipeline only reaches here if BOTH parallel jobs pass.
+  # This is the job name to add in GitHub branch protection rules.
+  # ────────────────────────────────────────────────────────────────
+  pipeline-success:
+    name: "All Checks Passed"
+    runs-on: ubuntu-latest
+    needs: [code-quality, automated-tests]
+
+    steps:
+      - name: "Stage 7 — Pipeline complete"
+        run: |
+          echo "==========================================="
+          echo " QuickPOS CI Pipeline — ALL STAGES PASSED "
+          echo "==========================================="
+          echo " Stage 1:  Code checkout        "
+          echo " Stage 2:  PHP setup            "
+          echo " Stage 3:  PHPStan analysis     "
+          echo " Stage 4:  PHPUnit tests        "
+          echo " Stage 5:  Syntax check         "
+          echo " Stage 6:  Artifact uploaded    "
+          echo " Stage 10: Jira ID validation   "
+          echo " Stage 11: Parallel execution   "
+          echo "==========================================="
